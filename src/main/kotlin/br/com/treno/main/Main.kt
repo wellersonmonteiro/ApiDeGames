@@ -1,13 +1,7 @@
 package br.com.treno.main
 
-import br.com.treno.model.InfoJogo
 import br.com.treno.model.Jogo
 import br.com.treno.servico.ConsumoApi
-import com.google.gson.Gson
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse.BodyHandlers
 import java.util.*
 
 
