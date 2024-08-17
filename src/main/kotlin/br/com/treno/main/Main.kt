@@ -1,56 +1,35 @@
 package br.com.treno.main
 
-import br.com.treno.model.Gamer
-import br.com.treno.model.Jogo
+import br.com.treno.model.Periodo
 import br.com.treno.servico.ConsumoApi
-import java.util.*
+import java.time.LocalDate
 
 
 fun main() {
 
-    var meuJogo: Jogo? = null
-    val leitura = Scanner(System.`in`)
-    val  gamer = Gamer.criarGamer(leitura)
-    println("Cadastro realizado com sucesso!")
-    println(gamer)
+    val consumo = ConsumoApi()
+    val listaGamers = consumo.buscaGamers()
+    val listaJogosJson = consumo.buscaJogosJson()
 
-    do {
+    val gamerCaroline = listaGamers.get(3)
+    val jogoResidentVillage = listaJogosJson.get(10)
+    val jogoSpider = listaJogosJson[13]
+    val jogoTheLastOf = listaJogosJson[2]
 
-        println("Digite um código de jogo para buscar:")
-        val busca = leitura.nextLine()
+//    println(gamerCaroline)
+//    println(jogoResidentVillage)
 
-        val buscaApi = ConsumoApi()
-        val meuInfoJogo = buscaApi.buscarJogo(busca)
+    val periodo1 = Periodo(LocalDate.of(2012,8,3), LocalDate.now().plusDays(3))
+    val periodo2 = Periodo(LocalDate.now(), LocalDate.now().plusDays(7))
+    val periodo3 = Periodo(LocalDate.now(), LocalDate.now().plusDays(10 -1))
 
-        val resultado = runCatching {
-            meuJogo = Jogo(
-                meuInfoJogo.info.title,
-                meuInfoJogo.info.thumb
-            )
 
-        }
+    gamerCaroline.alugaJogo(jogoResidentVillage, periodo1)
+    gamerCaroline.alugaJogo(jogoSpider, periodo2)
+    gamerCaroline.alugaJogo(jogoTheLastOf, periodo3)
 
-        resultado.onFailure {
-            println("br.com.treno.model.Jogo não encontrado")
-        }
+    println(gamerCaroline.jogosAlugados)
+    println("Jogos alugados por mês:")
+    println(gamerCaroline.jogosAlugadosPorMes(LocalDate.of(2024,8,14)))
 
-        println("Deseja inserir uma descrição para o jogo? (s/n)")
-        val opcao = leitura.nextLine()
-
-        if (opcao.equals("s", true)) {
-            println("Digite a descrição do jogo:")
-            var descricaoPersonalisada = leitura.nextLine()
-            meuJogo?.descricao = descricaoPersonalisada
-        } else {
-            meuJogo?.descricao = meuJogo?.titulo
-        }
-        gamer.jogosBuscados.add(meuJogo)
-       println("Deseja buscar outro jogo? (s/n)")
-       val resposta = leitura.nextLine()
-} while (resposta.equals("s", true))
-    println("Jogos buscados:")
-    println(gamer.jogosBuscados)
-    println("Busca realizada com sucesso!")
-    println("conta: ${gamer.nome}")
-    println(meuJogo)
 }

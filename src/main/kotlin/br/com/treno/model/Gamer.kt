@@ -1,5 +1,7 @@
 package br.com.treno.model
 
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Scanner
 import kotlin.random.Random
 
@@ -11,7 +13,7 @@ data class Gamer(
     var usuario: String? = null
         set(value) {
             field = value
-            if (idInterno.isNullOrBlank()){
+            if (idInterno.isNullOrBlank()) {
                 criarIdInterno()
 
             }
@@ -19,6 +21,8 @@ data class Gamer(
     var idInterno: String? = null
         private set
     val jogosBuscados = mutableListOf<Jogo?>()
+    val jogosAlugados = mutableListOf<Aluguel>()
+
     constructor(
         nome: String,
         email: String,
@@ -42,41 +46,47 @@ data class Gamer(
 
         idInterno = "$usuario#$tag"
     }
-    private fun validarEmail():String{
+
+    private fun validarEmail(): String {
         val regex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-        if (regex.matches(email)){
+        if (regex.matches(email)) {
             return email
-        }else {
+        } else {
             throw IllegalArgumentException("Email inválido")
         }
     }
 
-    init {
-        this.email = validarEmail()
-        if (nome.isNullOrBlank()){
-            throw IllegalArgumentException("Nome não pode ser vazio")
-        }
+    fun alugaJogo(jogo: Jogo, periodo: Periodo): Aluguel {
+        val aluguel = Aluguel(this, jogo, periodo)
+        jogosAlugados.add(aluguel)
 
+        return aluguel
     }
 
-    companion object{
+    fun jogosAlugadosPorMes(data: LocalDate): List<Jogo> {
+        return jogosAlugados.filter {
+            it.periodo.dataInicial.monthValue == data.monthValue &&
+                    it.periodo.dataInicial.year == data.year
+        }.map { aluguel -> aluguel.jogo }
+    }
+
+    companion object {
         fun criarGamer(leitura: Scanner): Gamer {
-           println("Boas-vindas ao Alura Games!")
+            println("Boas-vindas ao Alura Games!")
             println("Digite seu nome:")
             val nome = leitura.nextLine()
             println("Digite seu email:")
             val email = leitura.nextLine()
             println("Deseja completar o seu cadastro com usuário e data de nascimento? (s/n)")
-            val opcao  = leitura.nextLine()
+            val opcao = leitura.nextLine()
 
-            if (opcao.equals("s", true)){
+            if (opcao.equals("s", true)) {
                 println("Digite seu usuário:")
                 val usuario = leitura.nextLine()
                 println("Digite sua data de nascimento:")
                 val dataNascimento = leitura.nextLine()
                 return Gamer(nome, email, dataNascimento, usuario)
-            }else
-            {
+            } else {
                 return Gamer(nome, email)
             }
         }
