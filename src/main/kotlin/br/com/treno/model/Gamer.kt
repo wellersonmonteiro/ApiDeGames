@@ -1,14 +1,14 @@
 package br.com.treno.model
 
+import br.com.treno.utilitario.formatarValor
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.Scanner
+import java.util.*
 import kotlin.random.Random
 
 data class Gamer(
     var nome: String,
-    var email: String,
-) {
+    var email: String
+): Recomendavel {
     var dataNascimento: String? = null
     var usuario: String? = null
         set(value) {
@@ -20,8 +20,12 @@ data class Gamer(
         }
     var idInterno: String? = null
         private set
+
+    var plano: Plano = PlanoAvulso("BRONZE")
     val jogosBuscados = mutableListOf<Jogo?>()
     val jogosAlugados = mutableListOf<Aluguel>()
+    private val listaNotas = mutableListOf<Int>()
+    val jogosRecomendados = mutableListOf<Jogo>()
 
     constructor(
         nome: String,
@@ -34,10 +38,29 @@ data class Gamer(
         criarIdInterno()
     }
 
+    override val  media: Double
+        get() = listaNotas.average().formatarValor()
+
+
+    override fun recomendar(nota: Int) {
+        if (nota in 1 .. 10) {listaNotas.add(nota)}
+        else{throw IllegalArgumentException("Nota inválida")}
+    }
+
+    fun formatarValor(value: Double): String{
+        val result = "%.2f".format(value)
+        return result
+    }
+    fun recomendarJogo(jogo: Jogo, nota: Int){
+        jogo.recomendar(nota)
+        jogosRecomendados.add(jogo)
+    }
+
     override fun toString(): String {
         return "Gamer(nome='$nome', email='$email', " +
                 "dataNascimento=$dataNascimento, usuario=$usuario," +
-                " idInterno=$idInterno)"
+                " idInterno=$idInterno)\n" +
+                "Reputação =  ${media.formatarValor()}"
     }
 
     private fun criarIdInterno() {
