@@ -8,7 +8,7 @@ class PlanoAssinatura(
 ) : Plano(tipo) {
     override fun obterValorAluguel(aluguel: Aluguel): Double {
 
-        val jogosAlugados = aluguel.gamer.jogosAlugadosPorMes(aluguel.periodo.dataInicial).size + 1
+        val jogosAlugados = aluguel.gamer.jogosAlugados.size
         return if (jogosAlugados <= jogosIncluidos) {
             0.0
         } else {

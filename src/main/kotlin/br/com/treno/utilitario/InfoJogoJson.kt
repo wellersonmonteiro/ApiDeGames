@@ -8,6 +8,7 @@ fun InfoJogoJson.criarJogo(): Jogo{
        this.titulo,
         this.capa,
         this.preco,
-        this.descricao
+        this.descricao,
+        this.id
     )
 }

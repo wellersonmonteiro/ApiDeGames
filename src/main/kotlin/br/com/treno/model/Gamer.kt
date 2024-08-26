@@ -1,76 +1,67 @@
 package br.com.treno.model
 
-import br.com.treno.utilitario.formatarValor
-import java.time.LocalDate
+
 import java.util.*
 import kotlin.random.Random
 
-data class Gamer(
-    var nome: String,
-    var email: String
-): Recomendavel {
-    var dataNascimento: String? = null
-    var usuario: String? = null
+data class Gamer(var nome:String, var email:String): Recomendavel {
+    var dataNascimento:String? = null
+    var usuario:String? = null
         set(value) {
             field = value
-            if (idInterno.isNullOrBlank()) {
+            if(idInterno.isNullOrBlank()) {
                 criarIdInterno()
-
             }
         }
-    var idInterno: String? = null
+    var id = 0
+    var idInterno:String? = null
         private set
-
     var plano: Plano = PlanoAvulso("BRONZE")
     val jogosBuscados = mutableListOf<Jogo?>()
     val jogosAlugados = mutableListOf<Aluguel>()
     private val listaNotas = mutableListOf<Int>()
     val jogosRecomendados = mutableListOf<Jogo>()
 
-    constructor(
-        nome: String,
-        email: String,
-        dataNascimento: String,
-        usuario: String,
-    ) : this(nome, email) {
-        this.dataNascimento = dataNascimento
-        this.usuario = usuario
-        criarIdInterno()
-    }
-
-    override val  media: Double
-        get() = listaNotas.average().formatarValor()
-
+    override val media: Double
+        get() = listaNotas.average()
 
     override fun recomendar(nota: Int) {
-        if (nota in 1 .. 10) {listaNotas.add(nota)}
-        else{throw IllegalArgumentException("Nota inválida")}
+        listaNotas.add(nota)
     }
 
-    fun formatarValor(value: Double): String{
-        val result = "%.2f".format(value)
-        return result
-    }
-    fun recomendarJogo(jogo: Jogo, nota: Int){
+    fun recomendarJogo(jogo: Jogo, nota: Int) {
         jogo.recomendar(nota)
         jogosRecomendados.add(jogo)
     }
 
-    override fun toString(): String {
-        return "Gamer(nome='$nome', email='$email', " +
-                "dataNascimento=$dataNascimento, usuario=$usuario," +
-                " idInterno=$idInterno)\n" +
-                "Reputação =  ${media.formatarValor()}"
+    constructor(nome: String, email: String, dataNascimento:String?, usuario:String?, id: Int = 0):
+            this(nome, email) {
+        this.dataNascimento = dataNascimento
+        this.usuario = usuario
+        this.id = id
+        criarIdInterno()
     }
 
-    private fun criarIdInterno() {
+
+    override fun toString(): String {
+        return "Gamer:\n" +
+                "Nome: $nome\n" +
+                "Email: $email\n" +
+                "Data Nascimento: $dataNascimento\n" +
+                "Usuario: $usuario\n" +
+                "IdInterno: $idInterno\n" +
+                "Reputação: $media\n" +
+                "Id: $id"
+    }
+
+    fun criarIdInterno() {
         val numero = Random.nextInt(10000)
         val tag = String.format("%04d", numero)
 
         idInterno = "$usuario#$tag"
     }
 
-    private fun validarEmail(): String {
+    fun validarEmail(): String {
         val regex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
         if (regex.matches(email)) {
             return email
@@ -86,34 +77,33 @@ data class Gamer(
         return aluguel
     }
 
-    fun jogosAlugadosPorMes(data: LocalDate): List<Jogo> {
-        return jogosAlugados.filter {
-            it.periodo.dataInicial.monthValue == data.monthValue &&
-                    it.periodo.dataInicial.year == data.year
-        }.map { aluguel -> aluguel.jogo }
+    fun jogosDoMes(mes:Int): List<Jogo> {
+        return jogosAlugados
+            .filter { aluguel ->  aluguel.periodo.dataInicial.monthValue == mes}
+            .map { aluguel ->  aluguel.jogo}
     }
 
     companion object {
         fun criarGamer(leitura: Scanner): Gamer {
-            println("Boas-vindas ao Alura Games!")
-            println("Digite seu nome:")
+            println("Boas vindas ao AluGames! Vamos fazer seu cadastro. Digite seu nome:")
             val nome = leitura.nextLine()
-            println("Digite seu email:")
+            println("Digite seu e-mail:")
             val email = leitura.nextLine()
-            println("Deseja completar o seu cadastro com usuário e data de nascimento? (s/n)")
+            println("Deseja completar seu cadastro com usuário e data de nascimento? (S/N)")
             val opcao = leitura.nextLine()
 
             if (opcao.equals("s", true)) {
-                println("Digite seu usuário:")
+                println("Digite sua data de nascimento(DD/MM/AAAA):")
+                val nascimento = leitura.nextLine()
+                println("Digite seu nome de usuário:")
                 val usuario = leitura.nextLine()
-                println("Digite sua data de nascimento:")
-                val dataNascimento = leitura.nextLine()
-                return Gamer(nome, email, dataNascimento, usuario)
+
+                return Gamer(nome, email, nascimento, usuario)
             } else {
-                return Gamer(nome, email)
+                return Gamer (nome, email)
             }
+
         }
     }
-
 
 }
